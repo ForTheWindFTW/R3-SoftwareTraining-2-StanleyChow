@@ -5,7 +5,9 @@
 ## Progess
 - [x] Milestone 1: create a random maze generator
 ![Image of a 10 by 10 maze in 400x600 pixels](/images/generated_maze1.png)
+10 by 10 maze in 400x600 pixels
 ![Image of a 20 by 20 maze in 800x600 pixels](/images/generated_maze2.png)
+20 by 20 maze in 800x600 pixels
 - [ ] Milestone 2: transmit PWM commands over TCP to traverse a maze
 
 ## Milestone 1
