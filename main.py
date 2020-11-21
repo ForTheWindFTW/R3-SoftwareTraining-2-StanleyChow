@@ -1,18 +1,16 @@
 import sys
 import pygame
 import scmaze
-import time
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 FPS = 30  # refresh rate of pygame screen
 STROKE_WIDTH = 5  # line width, in pixels
-# GRID_DIM = (16, 12)  # number of tiles width and height-wise
-GRID_DIM = (80, 60)
+GRID_DIM = (10, 10)  # number of tiles width and height-wise
 
 # screen dimensions, in pixels
-WIDTH = 800
+WIDTH = 400
 HEIGHT = 600
 
 WINDOW_TITLE = 'Maze Generator - SC'
@@ -72,7 +70,6 @@ def main():
     graph = scmaze.gen_prim_maze(GRID_DIM)
     running = True
     while running:
-        t1 = 0
         # keep running at the right speed
         clock.tick(FPS)
         # process input (events)
@@ -84,10 +81,7 @@ def main():
                 # create new maze on left click
                 graph = scmaze.gen_prim_maze(GRID_DIM)
         screen.fill(WHITE)
-        t1 = time.time_ns()
         draw_grid(screen, graph)
-        if t1:
-            print(f'{time.time_ns() - t1}ns = {(time.time_ns() - t1) / 1e3}us = {(time.time_ns() - t1) / 1e6}ms = {(time.time_ns() - t1) / 1e9}s time to draw')
         pygame.display.update()
 
     pygame.quit()
