@@ -8,7 +8,7 @@
 ![Image of a 10 by 10 maze in 400x600 pixels](/images/generated_maze1.png)
 - 20 by 20 maze in 800x600 pixels
 ![Image of a 20 by 20 maze in 800x600 pixels](/images/generated_maze2.png)
-- [ ] Milestone 2: transmit PWM commands over TCP to traverse a maze
+- [x] Milestone 2: transmit PWM commands over TCP to traverse a maze
 
 ## Milestone 1
 ### Objective
@@ -52,12 +52,21 @@ motors should move.
 - Also create a program that recieves the TCP packet and prints it out (to test if it works) 
 
 ### Steps
-- WIP
+- Become familiar with TCP; client and server
+- Find how to convert position-solution array to robot commands
+- Send all commands with correct time delays
 
 ### How it Works
-- WIP
+- The socket that acts as the client is located in [maze.py](/maze.py) which connects to the socket in
+[server.py](/server.py)
+- It uses the Python [threading module](https://docs.python.org/3/library/threading.html) which allows the window to
+remain responsive (the TCP sends data in the background)
+- `send_solution()` in [maze.py](/maze.py) sends each set of instructions with a fixed-length header. After sending all
+of the commands, the socket sends to the [server.py](/server.py): `[0][0][0][0]` to stop the motors and `DONE` to indicate
+the end of the solution and will close the socket in [maze.py](/maze.py). 
 
 ## Reflection
+### Milestone 1
 So far, this second software training module has allowed me to utilize my previous experience. I have previously used
 JavaFX and Swing, which allows me to feel much more comfortable with the gui drawing in the pygame library. Installing
 the pygame module was a bit confusing, as simply downloading with pip was not enough for it to work, but I found a
@@ -66,3 +75,11 @@ with some graph theory algorithms, understanding how to modify Prim's Algorithm 
 for the second milestone, I will likely experience many more obstacles and difficulties, since I have not been able to
 grasp the concepts of networking, sockets, and packet communication.
 
+### Milestone 2
+The introductory concepts of TCP in Python was pretty simple. [This video](https://youtu.be/Lbfe3-v7yE0) from Youtube
+helped me grasp the concepts. Afterwards, it was a bit more challenging to implement it in the program since I was not
+sure which should act as the 'server' and which should be the 'client' and connect to that server. In the end, I decided
+to make the 'robot' act as the 'server' and wait for a connection and receive messages from [maze.py](/maze.py). One
+other problem I experienced was how to make the logic for determining if the robot needs to turn, and which way to turn.
+In the end, I used a pre-determined tuple which contains all right-turn orientation-strings, `('NE', 'ES', 'SW', 'WN')`,
+and the same for left-turn orientation-strings, `('NW', 'WS', 'SE', 'EN')`.
