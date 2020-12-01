@@ -9,6 +9,7 @@
 - 20 by 20 maze in 800x600 pixels
 ![Image of a 20 by 20 maze in 800x600 pixels](/images/generated_maze2.png)
 - [x] Milestone 2: transmit PWM commands over TCP to traverse a maze
+![Image of maze being solved](/images/maze_solving.png)
 
 ## Milestone 1
 ### Objective
@@ -57,13 +58,14 @@ motors should move.
 - Send all commands with correct time delays
 
 ### How it Works
-- The socket that acts as the client is located in [maze.py](/maze.py) which connects to the socket in
-[server.py](/server.py)
-- It uses the Python [threading module](https://docs.python.org/3/library/threading.html) which allows the window to
-remain responsive (the TCP sends data in the background)
-- `send_solution()` in [maze.py](/maze.py) sends each set of instructions with a fixed-length header. After sending all
-of the commands, the socket sends to the [server.py](/server.py): `[0][0][0][0]` to stop the motors and `DONE` to indicate
-the end of the solution and will close the socket in [maze.py](/maze.py). 
+1) Run [server.py](/server.py) in cmd (or another terminal), make sure it outputs:
+`SERVER: Bound and listening to 127.0.0.1:5005`. Note that [server.py](/server.py) acts as the robot (server socket)
+which recieves and handles data from connecting sockets (such as [maze.py](/maze.py)).
+2) Run [maze.py](/maze.py), which will create and solve a maze, and then send the solutions to the server started in 1)
+via `send_solution()`. [maze.py](/maze.py) uses the built-in
+[threading module](https://docs.python.org/3/library/threading.html), so the maze window remains responsive during TCP
+communication with the server. Additionally, `send_solution()` adds a fixed-length header which may aid in future
+development.
 
 ## Reflection
 ### Milestone 1

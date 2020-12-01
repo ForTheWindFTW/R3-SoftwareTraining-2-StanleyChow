@@ -30,7 +30,7 @@ direction = {
     "W": [-1, 0],
 }
 
-n = 5
+n = 10
 w = WIDTH / n
 h = HEIGHT / n
 
@@ -61,7 +61,7 @@ def drawGrid(n):
             x += w
         x = 0.0
         y += h
-    print(len(grid))
+    print('Grid size: {}x{} = {} tiles'.format(n, n, len(grid)))
     pygame.display.update()
 
 
@@ -150,14 +150,8 @@ def send_solution():
         """ When pwm > 0, returns CW (right) power [0][pwm][pwm][0], and CCW power [pwm][0][0][pwm] otherwise """
         return motor(pwm) + motor(-pwm)
 
-    def next_command(move):
-        pass
-
-    print(solution)
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_IP, TCP_PORT))
-
-    pos = solution[0]
+    pygame.draw.circle(screen, [0, 255, 0], [w / 2, h / 2], 15)
+    curr_pos = solution[0]
     facing = 'S'
     movement = {
         (0, -h): 'N',
@@ -165,30 +159,36 @@ def send_solution():
         (0, h): 'S',
         (-w, 0): 'W'
     }
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((TCP_IP, TCP_PORT))
 
     for move in solution[1:]:
-        print('delta pos: ' + str((move[0] - pos[0], move[1] - pos[1])))
-        move_dir = movement.get((move[0] - pos[0], move[1] - pos[1]))
-        print(move_dir)
+        move_dir = movement.get((move[0] - curr_pos[0], move[1] - curr_pos[1]))
 
-        command = ''
         if facing != move_dir:
             if facing + move_dir in ('NE', 'ES', 'SW', 'WN'):
                 command = rotate(255)
+                action = 'turning right (CW)'
             elif facing + move_dir in ('NW', 'WS', 'SE', 'EN'):
                 command = rotate(-255)
-            else:
+                action = 'turning left (CCW)'
+            else:  # Note: it is possible to move backwards, but with a predetermined solution of a maze, not possible
                 raise NotImplementedError('Move from facing {} to {} is not possible'.format(facing, move_dir))
             s.send('{chars:<{header}}{msg}'.format(chars=len(command), header=HEADER_SIZE, msg=command).encode('utf-8'))
-            print('turning')
+            print(action)
             time.sleep(ROBOT_SLEEP_S)
+
         command = drive(255)
         s.send('{chars:<{header}}{msg}'.format(chars=len(command), header=HEADER_SIZE, msg=command).encode('utf-8'))
-        print('driving')
-        time.sleep(ROBOT_SLEEP_S)
+        print('driving ({})'.format(move_dir))
 
-        pos = move
+        pygame.draw.circle(screen, [255, 255, 255], [curr_pos[0] + (w / 2), curr_pos[1] + (h / 2)], 15)
+        pygame.draw.circle(screen, [255, 0, 0], [curr_pos[0] + (w / 2), curr_pos[1] + (h / 2)], 10)
+        pygame.draw.circle(screen, [0, 255, 0], [move[0] + (w / 2), move[1] + (h / 2)], 15)
+        curr_pos = move
         facing = move_dir
+        pygame.display.update()
+        time.sleep(ROBOT_SLEEP_S)
     msg = '[0][0][0][0]'
     s.send('{chars:<{header}}{msg}'.format(chars=len(msg), header=HEADER_SIZE, msg=msg).encode('utf-8'))
     print('stopping')
@@ -196,6 +196,8 @@ def send_solution():
     msg = 'DONE'
     s.send('{chars:<{header}}{msg}'.format(chars=len(msg), header=HEADER_SIZE, msg=msg).encode('utf-8'))
     print('end')
+    s.close()
+
 
 t = threading.Thread(target=send_solution)
 t.start()
